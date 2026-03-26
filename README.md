@@ -42,6 +42,21 @@ npx pagecrypt docs/index.html docs/index.html YOUR_PASSWORD
 
 Push to GitHub and enable GitHub Pages from the `docs/` folder in repo settings.
 
+### Preview with sample data
+
+To see the site without Calibre installed:
+
+```bash
+python3 -c "
+from pathlib import Path
+t = Path('template.html').read_text()
+d = Path('sample_books.json').read_text()
+Path('docs').mkdir(exist_ok=True)
+Path('docs/index.html').write_text(t.replace('__BOOKS_DATA__', d))
+"
+open docs/index.html
+```
+
 ### Keep it updated
 
 Run `python3 export.py` whenever you add new books. The script commits and
