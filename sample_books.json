@@ -1,0 +1,42 @@
+[
+  {
+    "title": "The Left Hand of Darkness",
+    "authors": "Ursula K. Le Guin",
+    "formats": ["EPUB", "MOBI"],
+    "tags": ["Science Fiction", "Fiction"],
+    "series": "Hainish Cycle",
+    "series_index": 6
+  },
+  {
+    "title": "Designing Data-Intensive Applications",
+    "authors": "Martin Kleppmann",
+    "formats": ["PDF"],
+    "tags": ["Engineering", "Nonfiction"],
+    "series": "",
+    "series_index": null
+  },
+  {
+    "title": "Piranesi",
+    "authors": "Susanna Clarke",
+    "formats": ["EPUB"],
+    "tags": ["Fantasy", "Fiction"],
+    "series": "",
+    "series_index": null
+  },
+  {
+    "title": "A Wizard of Earthsea",
+    "authors": "Ursula K. Le Guin",
+    "formats": ["EPUB", "PDF"],
+    "tags": ["Fantasy", "Fiction"],
+    "series": "Earthsea",
+    "series_index": 1
+  },
+  {
+    "title": "The Tombs of Atuan",
+    "authors": "Ursula K. Le Guin",
+    "formats": ["EPUB"],
+    "tags": ["Fantasy", "Fiction"],
+    "series": "Earthsea",
+    "series_index": 2
+  }
+]

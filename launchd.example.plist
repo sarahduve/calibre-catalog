@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Optional: auto-export on a schedule.
+
+  To install:
+    1. Update the path to export.py below
+    2. cp launchd.example.plist ~/Library/LaunchAgents/com.calibre-catalog.export.plist
+    3. launchctl load ~/Library/LaunchAgents/com.calibre-catalog.export.plist
+
+  Runs every 30 minutes while logged in. Only useful when your machine is open.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.calibre-catalog.export</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>/path/to/calibre-catalog/export.py</string>
+  </array>
+  <key>StartInterval</key>
+  <integer>1800</integer>
+  <key>StandardOutPath</key>
+  <string>/tmp/calibre-catalog.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/calibre-catalog.log</string>
+</dict>
+</plist>
