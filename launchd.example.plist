@@ -17,10 +17,12 @@
   <key>ProgramArguments</key>
   <array>
     <string>/usr/bin/python3</string>
-    <string>~/Code/calibre-catalog/export.py</string>
+    <string>/path/to/calibre-catalog/export.py</string>
   </array>
   <key>EnvironmentVariables</key>
   <dict>
+    <key>PATH</key>
+    <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:YOUR_NVM_NODE_BIN_PATH_HERE</string>
     <key>PAGECRYPT_PASSWORD</key>
     <string>YOUR_PASSWORD_HERE</string>
   </dict>
