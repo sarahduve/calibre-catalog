@@ -107,8 +107,8 @@ def encrypt_html() -> None:
     """Encrypt the output HTML with pagecrypt if a password is set."""
     password = os.environ.get("PAGECRYPT_PASSWORD")
     if not password:
-        print("PAGECRYPT_PASSWORD not set — skipping encryption.", file=sys.stderr)
-        return
+        print("PAGECRYPT_PASSWORD not set — aborting to avoid pushing unencrypted data.", file=sys.stderr)
+        sys.exit(1)
 
     subprocess.run(
         ["npx", "pagecrypt", str(OUTPUT_PATH), str(OUTPUT_PATH), password],
