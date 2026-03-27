@@ -8,10 +8,12 @@ import sys
 from pathlib import Path
 
 # ============================================================
-# CONFIGURE THIS: path to your Calibre library
+# CONFIGURE THESE before first use
 # ============================================================
-CALIBRE_LIBRARY_PATH = "/path/to/your/Calibre Library"
+CALIBRE_LIBRARY_PATH = "~/Calibre Library"
 # Common macOS default: os.path.expanduser("~/Calibre Library")
+
+CALIBREDB = "/Applications/calibre.app/Contents/MacOS/calibredb"
 # ============================================================
 
 PROJECT_DIR = Path(__file__).resolve().parent
@@ -19,7 +21,7 @@ TEMPLATE_PATH = PROJECT_DIR / "template.html"
 OUTPUT_DIR = PROJECT_DIR / "docs"
 OUTPUT_PATH = OUTPUT_DIR / "index.html"
 
-FIELDS = "title,authors,formats,tags,series,series_index"
+FIELDS = "title,published,authors,formats,tags,series,series_index"
 
 
 def export_books() -> list[dict]:
@@ -32,7 +34,7 @@ def export_books() -> list[dict]:
 
     result = subprocess.run(
         [
-            "calibredb", "list",
+            CALIBREDB, "list",
             "--fields", FIELDS,
             "--for-machine",
             "--library-path", library,
@@ -75,6 +77,20 @@ def build_html(books: list[dict]) -> None:
     print(f"Wrote {len(books)} books to {OUTPUT_PATH}")
 
 
+def encrypt_html() -> None:
+    """Encrypt the output HTML with pagecrypt if a password is set."""
+    password = os.environ.get("PAGECRYPT_PASSWORD")
+    if not password:
+        print("PAGECRYPT_PASSWORD not set — skipping encryption.", file=sys.stderr)
+        return
+
+    subprocess.run(
+        ["npx", "pagecrypt", str(OUTPUT_PATH), str(OUTPUT_PATH), password],
+        check=True,
+    )
+    print("Encrypted docs/index.html with pagecrypt.")
+
+
 def git_commit_and_push() -> None:
     """Commit the updated catalog and push if a remote exists."""
     os.chdir(PROJECT_DIR)
@@ -108,6 +124,7 @@ def git_commit_and_push() -> None:
 def main() -> None:
     books = export_books()
     build_html(books)
+    encrypt_html()
     git_commit_and_push()
 
 

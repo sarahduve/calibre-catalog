@@ -17,8 +17,13 @@
   <key>ProgramArguments</key>
   <array>
     <string>/usr/bin/python3</string>
-    <string>/path/to/calibre-catalog/export.py</string>
+    <string>~/Code/calibre-catalog/export.py</string>
   </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PAGECRYPT_PASSWORD</key>
+    <string>YOUR_PASSWORD_HERE</string>
+  </dict>
   <key>StartInterval</key>
   <integer>1800</integer>
   <key>StandardOutPath</key>
