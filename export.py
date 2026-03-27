@@ -21,7 +21,7 @@ TEMPLATE_PATH = PROJECT_DIR / "template.html"
 OUTPUT_DIR = PROJECT_DIR / "docs"
 OUTPUT_PATH = OUTPUT_DIR / "index.html"
 
-FIELDS = "title,pubdate,authors,formats,tags,series,series_index"
+FIELDS = "title,pubdate,timestamp,authors,formats,tags,series,series_index"
 
 
 def export_books() -> list[dict]:
@@ -84,6 +84,7 @@ def export_books() -> list[dict]:
             "title": b.get("title", "Untitled"),
             "authors": b.get("authors", "Unknown"),
             "published": b.get("pubdate") or b.get("published") or "",
+            "added": b.get("timestamp") or "",
             "formats": sorted(set(formats)),
             "tags": sorted(b.get("tags", []) or []),
             "series": b.get("series") or "",

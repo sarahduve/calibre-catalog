@@ -52,7 +52,10 @@
   }
   .filter-row { display: flex; gap: 8px; }
   .filter-row select { flex: 1; }
+  .sort-row { display: flex; gap: 8px; }
+  .sort-row select { flex: 1; }
   .count { font-size: 0.85rem; color: var(--text-muted); margin-top: 8px; }
+  .card-dates { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
   .card-list { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
   .card {
     background: var(--card-bg);
@@ -93,6 +96,15 @@
         <option value="">All tags</option>
       </select>
     </div>
+    <div class="sort-row">
+      <select class="filter-select" id="sort-select">
+        <option value="title">Sort: Title</option>
+        <option value="added-desc">Sort: Recently added</option>
+        <option value="added-asc">Sort: Oldest added</option>
+        <option value="published-desc">Sort: Newest published</option>
+        <option value="published-asc">Sort: Oldest published</option>
+      </select>
+    </div>
   </div>
   <div class="count" id="count"></div>
 </header>
@@ -104,8 +116,14 @@ const BOOKS = __BOOKS_DATA__;
 const searchEl = document.getElementById("search");
 const formatEl = document.getElementById("format-filter");
 const tagEl = document.getElementById("tag-filter");
+const sortEl = document.getElementById("sort-select");
 const cardsEl = document.getElementById("cards");
 const countEl = document.getElementById("count");
+
+function fmtDate(iso) {
+  if (!iso || iso.startsWith("0101")) return "";
+  return new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "short" });
+}
 
 // Populate filter dropdowns
 const allFormats = [...new Set(BOOKS.flatMap(b => b.formats))].sort();
@@ -118,11 +136,22 @@ function render() {
   const fmt = formatEl.value;
   const tag = tagEl.value;
 
+  const sort = sortEl.value;
+
   const filtered = BOOKS.filter(b => {
     if (query && !b.title.toLowerCase().includes(query) && !b.authors.toLowerCase().includes(query)) return false;
     if (fmt && !b.formats.includes(fmt)) return false;
     if (tag && !b.tags.includes(tag)) return false;
     return true;
+  });
+
+  filtered.sort((a, b) => {
+    if (sort === "title") return a.title.localeCompare(b.title);
+    if (sort === "added-desc") return (b.added || "").localeCompare(a.added || "");
+    if (sort === "added-asc") return (a.added || "").localeCompare(b.added || "");
+    if (sort === "published-desc") return (b.published || "").localeCompare(a.published || "");
+    if (sort === "published-asc") return (a.published || "").localeCompare(b.published || "");
+    return 0;
   });
 
   countEl.textContent = `${filtered.length} of ${BOOKS.length} books`;
@@ -132,6 +161,7 @@ function render() {
       <div class="card-title">${esc(b.title)}</div>
       <div class="card-author">${esc(b.authors)}</div>
       ${b.series ? `<div class="card-series">${esc(b.series)}${b.series_index ? ` #${b.series_index}` : ""}</div>` : ""}
+      ${fmtDate(b.published) || fmtDate(b.added) ? `<div class="card-dates">${[fmtDate(b.published) ? "Published " + fmtDate(b.published) : "", fmtDate(b.added) ? "Added " + fmtDate(b.added) : ""].filter(Boolean).join(" · ")}</div>` : ""}
       <div class="card-meta">
         ${b.formats.map(f => `<span class="badge badge-format">${esc(f)}</span>`).join("")}
         ${b.tags.map(t => `<span class="badge badge-tag">${esc(t)}</span>`).join("")}
@@ -149,6 +179,7 @@ function esc(s) {
 searchEl.addEventListener("input", render);
 formatEl.addEventListener("change", render);
 tagEl.addEventListener("change", render);
+sortEl.addEventListener("change", render);
 render();
 </script>
 </body>
