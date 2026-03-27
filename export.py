@@ -11,7 +11,7 @@ from pathlib import Path
 # CONFIGURE THESE before first use
 # ============================================================
 CALIBRE_LIBRARY_PATH = "~/Calibre Library"
-# Common macOS default: os.path.expanduser("~/Calibre Library")
+CALIBRE_CONTENT_SERVER = "http://localhost:8080"
 
 CALIBREDB = "/Applications/calibre.app/Contents/MacOS/calibredb"
 # ============================================================
@@ -21,27 +21,48 @@ TEMPLATE_PATH = PROJECT_DIR / "template.html"
 OUTPUT_DIR = PROJECT_DIR / "docs"
 OUTPUT_PATH = OUTPUT_DIR / "index.html"
 
-FIELDS = "title,published,authors,formats,tags,series,series_index"
+FIELDS = "title,pubdate,authors,formats,tags,series,series_index"
 
 
 def export_books() -> list[dict]:
-    """Run calibredb and return parsed book data."""
-    library = os.path.expanduser(CALIBRE_LIBRARY_PATH)
-    if not os.path.isdir(library):
-        print(f"Error: Calibre library not found at {library}", file=sys.stderr)
-        print("Update CALIBRE_LIBRARY_PATH in export.py", file=sys.stderr)
-        sys.exit(1)
+    """Run calibredb and return parsed book data.
 
+    Tries the content server first (works when Calibre is open),
+    then falls back to the library path (works when Calibre is closed).
+    """
+    # Try content server first
     result = subprocess.run(
         [
             CALIBREDB, "list",
             "--fields", FIELDS,
             "--for-machine",
-            "--library-path", library,
+            "--with-library", CALIBRE_CONTENT_SERVER,
         ],
         capture_output=True,
         text=True,
     )
+
+    # Fall back to file path
+    if result.returncode != 0:
+        print(f"Content server failed: {result.stderr.strip()}", file=sys.stderr)
+        print("Trying library path directly.")
+        library = os.path.expanduser(CALIBRE_LIBRARY_PATH)
+        if not os.path.isdir(library):
+            print(f"Error: Calibre library not found at {library}", file=sys.stderr)
+            print("Update CALIBRE_LIBRARY_PATH in export.py", file=sys.stderr)
+            sys.exit(1)
+
+        result = subprocess.run(
+            [
+                CALIBREDB, "list",
+                "--fields", FIELDS,
+                "--for-machine",
+                "--library-path", library,
+            ],
+            capture_output=True,
+            text=True,
+        )
+
     if result.returncode != 0:
         print(f"calibredb failed: {result.stderr}", file=sys.stderr)
         sys.exit(1)
@@ -50,14 +71,19 @@ def export_books() -> list[dict]:
     books = []
     for b in raw_books:
         formats = []
-        for fmt_path in (b.get("formats") or []):
-            ext = os.path.splitext(fmt_path)[1].lstrip(".").upper()
+        for fmt in (b.get("formats") or []):
+            # Content server returns bare names like "EPUB";
+            # file path access returns full paths like "/path/to/book.epub"
+            ext = os.path.splitext(fmt)[1]
             if ext:
-                formats.append(ext)
+                formats.append(ext.lstrip(".").upper())
+            else:
+                formats.append(fmt.upper())
 
         books.append({
             "title": b.get("title", "Untitled"),
             "authors": b.get("authors", "Unknown"),
+            "published": b.get("pubdate") or b.get("published") or "",
             "formats": sorted(set(formats)),
             "tags": sorted(b.get("tags", []) or []),
             "series": b.get("series") or "",
