@@ -27,16 +27,12 @@ The default macOS path is `~/Calibre Library`.
 ### Export your library
 
 ```bash
-python3 export.py
+PAGECRYPT_PASSWORD=yourpassword python3 export.py
 ```
 
-This generates `docs/index.html` with your full library embedded.
-
-### Optional: password-protect the page
-
-```bash
-npx pagecrypt docs/index.html docs/index.html YOUR_PASSWORD
-```
+This generates `docs/index.html`, encrypts it with PageCrypt, and pushes to
+your remote. The script requires `PAGECRYPT_PASSWORD` to be set to prevent
+accidentally pushing unencrypted data.
 
 ### Deploy
 
