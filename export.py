@@ -118,11 +118,30 @@ def encrypt_html() -> None:
     print("Encrypted docs/index.html with pagecrypt.")
 
 
+def add_touch_icon() -> None:
+    """Re-add the iPhone home-screen icon tags to the PageCrypt wrapper.
+
+    PageCrypt rebuilds docs/index.html with its own <head> each run, so these
+    must be injected after encryption, not via template.html (which is encrypted).
+    """
+    html = OUTPUT_PATH.read_text()
+    if "apple-touch-icon" not in html:
+        tags = (
+            '<link rel="icon" type="image/png" href="apple-touch-icon.png">'
+            '<link rel="apple-touch-icon" href="apple-touch-icon.png">'
+            '<meta name="apple-mobile-web-app-capable" content="yes">'
+            '<meta name="apple-mobile-web-app-title" content="My Library">'
+            '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">'
+        )
+        OUTPUT_PATH.write_text(html.replace("<head>", "<head>" + tags, 1))
+    print("Added home-screen icon tags.")
+
+
 def git_commit_and_push() -> None:
     """Commit the updated catalog and push if a remote exists."""
     os.chdir(PROJECT_DIR)
     # Stage the output
-    subprocess.run(["git", "add", "docs/index.html"], check=True)
+    subprocess.run(["git", "add", "docs/index.html", "docs/apple-touch-icon.png"], check=True)
 
     # Check if there are changes to commit
     diff = subprocess.run(["git", "diff", "--cached", "--quiet"])
