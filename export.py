@@ -171,6 +171,7 @@ def main() -> None:
     books = export_books()
     build_html(books)
     encrypt_html()
+    add_touch_icon()
     git_commit_and_push()
 
 
