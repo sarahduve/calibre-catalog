@@ -123,15 +123,19 @@ def add_touch_icon() -> None:
 
     PageCrypt rebuilds docs/index.html with its own <head> each run, so these
     must be injected after encryption, not via template.html (which is encrypted).
+
+    Deliberately NOT setting apple-mobile-web-app-capable: that launches the
+    shortcut in standalone mode, where iOS caches the HTML snapshot and ignores
+    the server's cache-control, so the home-screen catalog goes stale. Without
+    it the shortcut stays a Safari web-clip that reloads the live page each time,
+    while apple-touch-icon still gives it the custom icon and title.
     """
     html = OUTPUT_PATH.read_text()
     if "apple-touch-icon" not in html:
         tags = (
             '<link rel="icon" type="image/png" href="apple-touch-icon.png">'
             '<link rel="apple-touch-icon" href="apple-touch-icon.png">'
-            '<meta name="apple-mobile-web-app-capable" content="yes">'
             '<meta name="apple-mobile-web-app-title" content="My Library">'
-            '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">'
         )
         OUTPUT_PATH.write_text(html.replace("<head>", "<head>" + tags, 1))
     print("Added home-screen icon tags.")
